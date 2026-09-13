@@ -1,0 +1,6 @@
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.card { border: 1px solid #333; border-radius: 8px; padding: 16px; background: #1a1a1a; color: #eee; }
+.categoria { font-size: 12px; text-transform: uppercase; color: #8b5cf6; }
+.sku { font-size: 12px; color: #888; }
+.precio { font-size: 20px; font-weight: bold; color: #22c55e; }
+.stock { font-size: 13px; color: #aaa; }

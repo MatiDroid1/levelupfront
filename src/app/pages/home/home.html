@@ -1,0 +1,103 @@
+<!-- HERO -->
+<section class="relative overflow-hidden rounded-2xl border border-[#282a32] bg-[#191b23] p-8 md:p-14">
+  <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#b76dff]/20 blur-3xl"></div>
+  <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#00dbe9]/10 blur-3xl"></div>
+
+  <div class="relative max-w-2xl space-y-5">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#282a32] border border-[#33343d] text-[11px] font-mono uppercase tracking-wider text-[#00e479]">
+      <span class="w-1.5 h-1.5 rounded-full bg-[#00e479] animate-pulse"></span>
+      Pedidos360 · Temporada 2026
+    </span>
+
+    <h1 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-bold leading-[1.05] text-[#e1e1ed]">
+      Hardware de <span class="text-[#ddb7ff]">élite</span>,<br>
+      pedidos <span class="text-[#7df4ff]">sin fricción</span>.
+    </h1>
+
+    <p class="text-[#cfc2d6] text-base md:text-lg leading-relaxed">
+      Catálogo LevelUp Gamer conectado a microservicios en la nube. Inicia sesión con tu cuenta Microsoft,
+      arma tu pedido y sigue su estado en tiempo real.
+    </p>
+
+    <div class="flex flex-wrap gap-3 pt-2">
+      <a routerLink="/catalogo"
+         class="px-6 py-3 rounded-lg bg-[#ddb7ff] hover:bg-[#f0dbff] text-[#490080] font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide flex items-center gap-2 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">storefront</span>
+        Ver catálogo
+      </a>
+      <a routerLink="/pedidos"
+         class="px-6 py-3 rounded-lg bg-[#282a32] hover:bg-[#33343d] border border-[#33343d] text-[#e1e1ed] font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide flex items-center gap-2 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+        Mis pedidos
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORÍAS -->
+<section class="mt-10">
+  <h2 class="font-['Space_Grotesk'] text-xs uppercase tracking-widest text-[#988d9f] mb-4">Explorar por categoría</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    @for (c of categorias; track c.nombre) {
+      <a [routerLink]="['/catalogo']" [queryParams]="{ categoria: c.nombre }"
+         class="group rounded-xl bg-[#191b23] hover:bg-[#1d1f28] border border-[#282a32] hover:border-[#ddb7ff]/40 p-4 flex flex-col items-center gap-2 transition-all">
+        <span class="material-symbols-outlined text-[28px] text-[#ddb7ff] group-hover:scale-110 transition-transform">{{ c.icono }}</span>
+        <span class="font-['Space_Grotesk'] text-xs font-semibold text-[#e1e1ed] text-center">{{ c.nombre }}</span>
+      </a>
+    }
+  </div>
+</section>
+
+<!-- DESTACADOS -->
+<section class="mt-12">
+  <div class="flex items-end justify-between mb-4">
+    <div>
+      <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#e1e1ed]">Destacados</h2>
+      <p class="text-sm text-[#988d9f]">Directo desde <span class="font-mono text-[#7df4ff]">GET /productos</span></p>
+    </div>
+    <a routerLink="/catalogo" class="text-sm text-[#ddb7ff] hover:text-[#f0dbff] font-semibold flex items-center gap-1">
+      Ver todo <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </a>
+  </div>
+
+  @if (destacados().length === 0) {
+    <div class="rounded-xl border border-dashed border-[#33343d] p-10 text-center text-[#988d9f] text-sm">
+      <span class="material-symbols-outlined text-[36px] block mb-2 text-[#4d4354]">cloud_off</span>
+      No se pudo cargar el catálogo. ¿Está corriendo <span class="font-mono">ms-productos</span> en el puerto 8080?
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      @for (p of destacados(); track p.id) {
+        <article class="group bg-[#191b23] hover:bg-[#1d1f28] rounded-xl p-5 border border-[#282a32] hover:border-[#ddb7ff]/40 transition-all flex flex-col gap-3">
+          <div class="aspect-video rounded-lg bg-[#0c0e16] border border-[#282a32]/60 overflow-hidden">
+            <img [src]="'img/productos/' + p.sku + '.jpg'" [alt]="p.nombre"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <span class="font-mono text-[10px] uppercase tracking-wider text-[#b76dff]">{{ p.categoria }}</span>
+          <h3 class="font-['Space_Grotesk'] text-base font-bold text-[#e1e1ed] leading-snug line-clamp-2 min-h-[2.6rem]">{{ p.nombre }}</h3>
+          <div class="flex items-center justify-between mt-auto">
+            <span class="font-mono text-lg font-bold text-[#7df4ff]">{{ p.precio | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+            <button (click)="carrito.agregar(p)"
+                    class="w-9 h-9 rounded-lg bg-[#ddb7ff] hover:bg-[#f0dbff] text-[#490080] flex items-center justify-center transition-colors cursor-pointer"
+                    title="Agregar al carrito">
+              <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
+
+<!-- PILARES TÉCNICOS -->
+<section class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-4">
+  @for (pilar of pilares; track pilar.titulo) {
+    <div class="rounded-xl bg-[#0c0e16] border border-[#282a32] p-6 space-y-3">
+      <div class="w-10 h-10 rounded-lg bg-[#282a32] flex items-center justify-center text-[#00dbe9]">
+        <span class="material-symbols-outlined text-[22px]">{{ pilar.icono }}</span>
+      </div>
+      <h3 class="font-['Space_Grotesk'] text-base font-bold text-[#e1e1ed]">{{ pilar.titulo }}</h3>
+      <p class="text-sm text-[#cfc2d6] leading-relaxed">{{ pilar.texto }}</p>
+    </div>
+  }
+</section>

@@ -1,0 +1,108 @@
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+  <div>
+    <span class="font-mono text-[11px] uppercase tracking-wider text-[#00dbe9]">ms-pedidos · GET /pedidos</span>
+    <h1 class="font-['Space_Grotesk'] text-3xl md:text-4xl font-bold text-[#e1e1ed] mt-1">Mis pedidos</h1>
+  </div>
+  <button (click)="cargar()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#282a32] hover:bg-[#33343d] text-xs text-[#cfc2d6] cursor-pointer">
+    <span class="material-symbols-outlined text-[18px]">refresh</span> Actualizar
+  </button>
+</div>
+
+@if (creado()) {
+  <div class="mb-6 flex items-center gap-3 rounded-xl border border-[#00a657]/50 bg-[#00a657]/10 p-4 text-sm text-[#60ff99]">
+    <span class="material-symbols-outlined text-[22px]">check_circle</span>
+    Pedido <span class="font-mono font-bold">#{{ creado() }}</span> creado correctamente.
+  </div>
+}
+
+@if (cargando()) {
+  <div class="space-y-3">
+    @for (i of [1,2,3]; track i) {
+      <div class="h-20 rounded-xl bg-[#191b23] border border-[#282a32] animate-pulse"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="rounded-xl border border-[#93000a]/60 bg-[#93000a]/10 p-8 text-center">
+    <span class="material-symbols-outlined text-[40px] text-[#ffb4ab] block mb-2">cloud_off</span>
+    <p class="text-[#ffdad6] text-sm">{{ error() }}</p>
+  </div>
+} @else if (pedidos().length === 0) {
+  <div class="rounded-xl border border-dashed border-[#33343d] p-14 text-center text-[#988d9f]">
+    <span class="material-symbols-outlined text-[48px] block mb-3 text-[#4d4354]">receipt_long</span>
+    <p class="mb-4">Aún no hay pedidos registrados.</p>
+    <a routerLink="/catalogo" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#ddb7ff] hover:bg-[#f0dbff] text-[#490080] font-['Space_Grotesk'] text-xs font-bold uppercase">
+      <span class="material-symbols-outlined text-[18px]">storefront</span> Ir al catálogo
+    </a>
+  </div>
+} @else {
+  <div class="space-y-3">
+    @for (p of pedidos(); track p.id) {
+      <article class="bg-[#191b23] rounded-xl border border-[#282a32] overflow-hidden"
+               [class.border-[#ddb7ff]/40]="abierto() === p.id">
+
+        <!-- Cabecera -->
+        <button (click)="toggle(p.id)" class="w-full p-4 flex flex-col sm:flex-row sm:items-center gap-3 text-left cursor-pointer hover:bg-[#1d1f28] transition-colors">
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-[#282a32] flex items-center justify-center text-[#ddb7ff] shrink-0">
+              <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-['Space_Grotesk'] font-bold text-[#e1e1ed]">Pedido #{{ p.id }}</span>
+                <span class="px-2 py-0.5 rounded font-mono text-[10px] font-bold uppercase" [class]="estadoClase(p.estado)">{{ p.estado }}</span>
+              </div>
+              <div class="text-xs text-[#988d9f] truncate">
+                <span class="font-mono">{{ p.usuario }}</span>
+                @if (p.fecha) { · {{ p.fecha | date:'dd/MM/yyyy HH:mm' }} }
+                · {{ p.detalles.length }} ítem(s)
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 sm:pl-4">
+            <span class="font-mono text-lg font-bold text-[#00e479]">{{ p.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+            <span class="material-symbols-outlined text-[#988d9f] transition-transform" [class.rotate-180]="abierto() === p.id">expand_more</span>
+          </div>
+        </button>
+
+        <!-- Detalle -->
+        @if (abierto() === p.id) {
+          <div class="border-t border-[#282a32] bg-[#0c0e16]/60 p-4 space-y-4">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-[10px] uppercase tracking-wider text-[#988d9f] font-mono">
+                  <th class="text-left pb-2">Producto</th>
+                  <th class="text-right pb-2">Precio</th>
+                  <th class="text-right pb-2">Cant.</th>
+                  <th class="text-right pb-2">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#282a32]/60">
+                @for (d of p.detalles; track d.productoId) {
+                  <tr class="text-[#cfc2d6]">
+                    <td class="py-2 text-[#e1e1ed]">{{ d.nombreProducto }}</td>
+                    <td class="py-2 text-right font-mono">{{ d.precioUnitario | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
+                    <td class="py-2 text-right font-mono">{{ d.cantidad }}</td>
+                    <td class="py-2 text-right font-mono text-[#7df4ff]">{{ d.subtotal | currency:'CLP':'symbol-narrow':'1.0-0' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <!-- Cambio de estado: mañana solo visible para rol admin -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-[#282a32]/60">
+              <span class="text-[10px] uppercase tracking-wider text-[#988d9f] font-mono mr-1">Cambiar estado (admin):</span>
+              @for (e of estados; track e) {
+                <button (click)="cambiarEstado(p, e)"
+                        [disabled]="e === p.estado"
+                        class="px-2.5 py-1 rounded text-[10px] font-mono font-bold uppercase border border-[#33343d] hover:border-[#ddb7ff]/50 cursor-pointer disabled:opacity-40 disabled:cursor-default"
+                        [class]="estadoClase(e)">
+                  {{ e }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </article>
+    }
+  </div>
+}

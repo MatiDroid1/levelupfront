@@ -1,0 +1,10 @@
+<div class="min-h-screen flex flex-col bg-[#11131b]">
+  <app-header />
+
+  <!-- pt-24 compensa el header fijo (ticker 32px + nav 64px) -->
+  <main class="flex-1 w-full max-w-[88rem] mx-auto px-4 md:px-8 pt-28 pb-16">
+    <router-outlet />
+  </main>
+
+  <app-footer />
+</div>

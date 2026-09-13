@@ -1,0 +1,112 @@
+<!-- Encabezado -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+  <div>
+    <span class="font-mono text-[11px] uppercase tracking-wider text-[#00dbe9]">ms-productos · GET /productos</span>
+    <h1 class="font-['Space_Grotesk'] text-3xl md:text-4xl font-bold text-[#e1e1ed] mt-1">Catálogo Gamer</h1>
+  </div>
+  <div class="flex items-center gap-1.5 bg-[#282a32] px-3 py-1 rounded border border-[#33343d] text-xs w-fit">
+    <span class="w-2 h-2 rounded-full bg-[#00e479] animate-pulse"></span>
+    <span class="text-[#cfc2d6] font-mono">{{ filtrados().length }} / {{ productos().length }} productos</span>
+  </div>
+</div>
+
+<!-- Barra de filtros -->
+<div class="w-full bg-[#191b23] rounded-xl p-4 mb-6 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4 border border-[#282a32]">
+
+  <!-- Buscador -->
+  <label class="flex items-center flex-1 max-w-xl bg-[#0c0e16] rounded-lg px-3 py-2 border border-[#282a32]/80 focus-within:border-[#ddb7ff]/60 transition-colors gap-2">
+    <span class="material-symbols-outlined text-[#cfc2d6] text-[20px]">search</span>
+    <input type="text"
+           [value]="busqueda()"
+           (input)="busqueda.set($any($event.target).value)"
+           placeholder="Buscar por nombre o SKU..."
+           class="w-full bg-transparent text-sm text-[#e1e1ed] placeholder:text-[#988d9f] outline-none">
+    @if (busqueda()) {
+      <button (click)="busqueda.set('')" class="text-[#988d9f] hover:text-[#e1e1ed] cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    }
+  </label>
+
+  <!-- Chips de categoría -->
+  <div class="flex flex-wrap gap-2">
+    @for (c of categorias(); track c) {
+      <button (click)="categoriaActiva.set(c)"
+              class="px-3 py-1.5 rounded-lg text-xs font-['Space_Grotesk'] font-semibold transition-colors cursor-pointer border"
+              [class]="categoriaActiva() === c
+                ? 'bg-[#ddb7ff] text-[#490080] border-[#ddb7ff]'
+                : 'bg-[#0c0e16] text-[#cfc2d6] border-[#282a32] hover:border-[#ddb7ff]/40 hover:text-[#e1e1ed]'">
+        {{ c }}
+      </button>
+    }
+  </div>
+</div>
+
+<!-- Estados -->
+@if (cargando()) {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    @for (i of [1,2,3,4,5,6,7,8]; track i) {
+      <div class="h-56 rounded-xl bg-[#191b23] border border-[#282a32] animate-pulse"></div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="rounded-xl border border-[#93000a]/60 bg-[#93000a]/10 p-8 text-center">
+    <span class="material-symbols-outlined text-[40px] text-[#ffb4ab] block mb-2">cloud_off</span>
+    <p class="text-[#ffdad6] text-sm">{{ error() }}</p>
+  </div>
+} @else if (filtrados().length === 0) {
+  <div class="rounded-xl border border-dashed border-[#33343d] p-12 text-center text-[#988d9f]">
+    <span class="material-symbols-outlined text-[40px] block mb-2 text-[#4d4354]">search_off</span>
+    Sin resultados para tu búsqueda.
+  </div>
+} @else {
+
+  <!-- Grid de productos -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    @for (p of filtrados(); track p.id) {
+      <article class="group bg-[#191b23] hover:bg-[#1d1f28] rounded-xl p-5 border border-[#282a32] hover:border-[#ddb7ff]/40 transition-all flex flex-col gap-3">
+
+        <!-- Categoría + SKU -->
+        <div class="flex items-center justify-between">
+          <span class="bg-[#b76dff] text-[#400071] font-mono text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">{{ p.categoria }}</span>
+          <span class="font-mono text-[10px] text-[#988d9f] uppercase">{{ p.sku }}</span>
+        </div>
+
+        <!-- Imagen: public/img/productos/<SKU>.jpg; si no existe, ícono de la categoría -->
+        <div class="aspect-video rounded-lg bg-[#0c0e16] border border-[#282a32]/60 overflow-hidden flex items-center justify-center">
+          @if (!sinImagen().has(p.sku)) {
+            <img [src]="'img/productos/' + p.sku + '.jpg'" [alt]="p.nombre"
+                 (error)="marcarSinImagen(p.sku)"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          } @else {
+            <span class="material-symbols-outlined text-[44px] text-[#33343d]">{{ iconoCategoria(p.categoria) }}</span>
+          }
+        </div>
+
+        <!-- Nombre -->
+        <h3 class="font-['Space_Grotesk'] text-base text-[#e1e1ed] font-bold leading-snug group-hover:text-[#7df4ff] transition-colors line-clamp-2 min-h-[2.6rem]">
+          {{ p.nombre }}
+        </h3>
+
+        <!-- Precio + stock -->
+        <div class="flex items-end justify-between mt-auto">
+          <div>
+            <span class="font-mono text-xl text-[#7df4ff] font-bold block">{{ p.precio | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+            <span class="font-mono text-[11px]" [class]="stockClase(p.stock)">
+              {{ p.stock === 0 ? 'Sin stock' : 'Stock: ' + p.stock }}
+            </span>
+          </div>
+          <button (click)="agregar(p)"
+                  [disabled]="p.stock === 0"
+                  class="px-3 py-2 rounded font-['Space_Grotesk'] text-xs font-bold uppercase flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  [class]="agregadoId() === p.id
+                    ? 'bg-[#00e479] text-[#003919]'
+                    : 'bg-[#ddb7ff] hover:bg-[#f0dbff] text-[#490080]'">
+            <span class="material-symbols-outlined text-[16px]">{{ agregadoId() === p.id ? 'check' : 'add_shopping_cart' }}</span>
+            <span>{{ agregadoId() === p.id ? 'Listo' : 'Agregar' }}</span>
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+}

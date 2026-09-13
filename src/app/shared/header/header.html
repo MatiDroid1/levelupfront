@@ -1,0 +1,87 @@
+<header class="fixed top-0 left-0 right-0 z-50 bg-[#11131b]/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.6)] border-b border-[#282a32]/60">
+
+  <!-- Ticker superior -->
+  <div class="h-8 w-full bg-[#0c0e16] px-4 md:px-8 flex items-center justify-between overflow-hidden text-xs">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="material-symbols-outlined text-[#00e479] text-[15px]">bolt</span>
+      <span class="font-['Space_Grotesk'] text-[11px] uppercase tracking-wider text-[#00e479] font-bold">Pedidos360</span>
+      <span class="text-[#988d9f] hidden md:inline">|</span>
+      <p class="text-[#e1e1ed] truncate text-[11px] sm:text-xs">
+        <span class="text-[#ddb7ff] font-semibold">Sistema de pedidos</span> · Microservicios Spring Boot + Angular · Identidad Microsoft Entra ID
+      </p>
+    </div>
+    <div class="hidden lg:flex items-center gap-3">
+      <span class="text-[#00e479] text-[11px] font-['Space_Grotesk'] flex items-center gap-1 font-bold">
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#00e479] animate-pulse"></span>
+        API ONLINE
+      </span>
+    </div>
+  </div>
+
+  <!-- Barra principal -->
+  <div class="h-16 w-full max-w-[88rem] mx-auto px-4 md:px-8 flex items-center justify-between gap-4">
+
+    <!-- Marca -->
+    <a routerLink="/" class="flex items-center gap-3 shrink-0 cursor-pointer group">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[#b76dff] to-[#00dbe9] flex items-center justify-center shadow-lg shadow-[#b76dff]/20 group-hover:scale-105 transition-transform">
+        <span class="material-symbols-outlined text-[#11131b] text-[22px] fill">sports_esports</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="font-['Space_Grotesk'] text-lg uppercase font-bold tracking-tight text-[#e1e1ed] leading-none">
+          LEVEL UP <span class="text-[#ddb7ff]">GAMER</span>
+        </span>
+        <span class="font-['Space_Grotesk'] text-[9px] text-[#00dbe9] uppercase tracking-widest font-semibold">
+          Esports Hardware Lab
+        </span>
+      </div>
+    </a>
+
+    <!-- Navegación -->
+    <nav class="hidden md:flex items-center gap-6">
+      @for (link of links; track link.path) {
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="text-[#ddb7ff] font-bold border-b-2 border-[#ddb7ff]"
+          [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+          class="font-['Space_Grotesk'] text-sm tracking-wide text-[#cfc2d6] hover:text-[#e1e1ed] transition-colors pb-1 border-b-2 border-transparent">
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <!-- Acciones -->
+    <div class="flex items-center gap-2">
+      <a routerLink="/carrito"
+         class="relative w-10 h-10 rounded-lg bg-[#282a32] hover:bg-[#33343d] text-[#cfc2d6] hover:text-[#ddb7ff] flex items-center justify-center transition-colors"
+         title="Carrito">
+        <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+        @if (carrito.cantidadTotal() > 0) {
+          <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#00e479] text-[#003919] text-[11px] font-bold flex items-center justify-center font-mono">
+            {{ carrito.cantidadTotal() }}
+          </span>
+        }
+      </a>
+
+      @if (usuario) {
+        <div class="hidden sm:flex items-center gap-2 px-3 h-10 rounded-lg bg-[#282a32] text-xs">
+          <span class="material-symbols-outlined text-[18px] text-[#ddb7ff]">account_circle</span>
+          <span class="text-[#e1e1ed] font-medium truncate max-w-40">{{ usuario }}</span>
+        </div>
+        <button (click)="logout()"
+                [disabled]="botonesDeshabilitados"
+                class="h-10 px-4 rounded-lg bg-[#282a32] hover:bg-[#3a2230] disabled:opacity-40 disabled:cursor-not-allowed text-[#ff9c9c] font-['Space_Grotesk'] text-xs font-bold uppercase tracking-wide flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Cerrar sesión">
+          <span class="material-symbols-outlined text-[18px]">logout</span>
+          <span class="hidden sm:inline">Salir</span>
+        </button>
+      } @else {
+        <button (click)="login()"
+                [disabled]="botonesDeshabilitados"
+                class="h-10 px-4 rounded-lg bg-[#ddb7ff] hover:bg-[#f0dbff] disabled:opacity-40 disabled:cursor-not-allowed text-[#490080] font-['Space_Grotesk'] text-xs font-bold uppercase tracking-wide flex items-center gap-1.5 transition-colors cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">login</span>
+          <span class="hidden sm:inline">Iniciar sesión</span>
+        </button>
+      }
+    </div>
+  </div>
+</header>
