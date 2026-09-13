@@ -1,6 +1,7 @@
-// URLs de los microservicios. En AWS se reemplazan por las rutas del API Gateway.
 export const environment = {
   production: false,
-  apiProductos: 'http://localhost:8080/productos',
-  apiPedidos: 'http://localhost:8081/pedidos',
+  apiProductos:
+    'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/productos',
+  apiPedidos:
+    'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/pedidos',
 };
