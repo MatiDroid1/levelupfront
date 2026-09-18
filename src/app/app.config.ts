@@ -42,8 +42,8 @@ const FRONTEND_CLIENT_ID = '4e1b80a0-e37c-466a-8492-1e6c6bb1d316';
 const BACKEND_SCOPE =
   'api://260c8d4a-9eae-4da8-9e2b-76c587b25b85/access_as_user';
 
-const REDIRECT_URI = 'http://localhost:4200';
-
+//const REDIRECT_URI = 'http://localhost:4200';
+const REDIRECT_URI = window.location.origin;
 const API_BASE =
   'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com';
 
@@ -82,14 +82,10 @@ function msalGuardConfigFactory(): MsalGuardConfiguration {
 }
 
 function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
-  const protectedResourceMap = new Map<string, Array<string> | null>();
+  const  dResourceMap = new Map<string, Array<string> | null>();
 
   // Productos: público.
-  protectedResourceMap.set(
-    'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/productos',
-    null
-  );
-
+const protectedResourceMap = new Map<string, Array<string>>();
   // Pedidos raíz: GET y POST /pedidos.
   protectedResourceMap.set(
     'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/pedidos',
