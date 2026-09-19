@@ -42,34 +42,38 @@ const FRONTEND_CLIENT_ID = '4e1b80a0-e37c-466a-8492-1e6c6bb1d316';
 const BACKEND_SCOPE =
   'api://260c8d4a-9eae-4da8-9e2b-76c587b25b85/access_as_user';
 
-//const REDIRECT_URI = 'http://localhost:4200';
 const REDIRECT_URI = window.location.origin;
 const API_BASE =
   'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com';
 
-function msalInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication({
-    auth: {
-      clientId: FRONTEND_CLIENT_ID,
-      authority: `https://login.microsoftonline.com/${TENANT_ID}`,
-      redirectUri: REDIRECT_URI,
-      postLogoutRedirectUri: REDIRECT_URI,
-    },
-    cache: {
-      cacheLocation: BrowserCacheLocation.LocalStorage,
-    },
-    system: {
-      loggerOptions: {
-        loggerCallback: (level: LogLevel, message: string) => {
-          if (level === LogLevel.Error) {
-            console.error(message);
-          }
-        },
-        logLevel: LogLevel.Warning,
-        piiLoggingEnabled: false,
+// La instancia se crea UNA sola vez a nivel de modulo, en vez de dentro
+// de la factory. Asi main.ts puede importarla y llamar a initialize()
+// antes de arrancar la app, y la factory de abajo simplemente la reutiliza.
+export const msalInstance: IPublicClientApplication = new PublicClientApplication({
+  auth: {
+    clientId: FRONTEND_CLIENT_ID,
+    authority: `https://login.microsoftonline.com/${TENANT_ID}`,
+    redirectUri: REDIRECT_URI,
+    postLogoutRedirectUri: REDIRECT_URI,
+  },
+  cache: {
+    cacheLocation: BrowserCacheLocation.LocalStorage,
+  },
+  system: {
+    loggerOptions: {
+      loggerCallback: (level: LogLevel, message: string) => {
+        if (level === LogLevel.Error) {
+          console.error(message);
+        }
       },
+      logLevel: LogLevel.Warning,
+      piiLoggingEnabled: false,
     },
-  });
+  },
+});
+
+function msalInstanceFactory(): IPublicClientApplication {
+  return msalInstance;
 }
 
 function msalGuardConfigFactory(): MsalGuardConfiguration {
@@ -82,21 +86,17 @@ function msalGuardConfigFactory(): MsalGuardConfiguration {
 }
 
 function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
-  const  dResourceMap = new Map<string, Array<string> | null>();
+  const protectedResourceMap = new Map<string, Array<string> | null>();
 
-  // Productos: público.
-const protectedResourceMap = new Map<string, Array<string>>();
-  // Pedidos raíz: GET y POST /pedidos.
-  protectedResourceMap.set(
-    'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/pedidos',
-    [BACKEND_SCOPE]
-  );
+  // Productos: publico, sin scopes (no se adjunta token).
+  protectedResourceMap.set(`${API_BASE}/productos`, null);
+  protectedResourceMap.set(`${API_BASE}/productos/*`, null);
+
+  // Pedidos raiz: GET y POST /pedidos.
+  protectedResourceMap.set(`${API_BASE}/pedidos`, [BACKEND_SCOPE]);
 
   // Pedidos por ID: GET/PATCH /pedidos/{id}/...
-  protectedResourceMap.set(
-    'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/pedidos/*',
-    [BACKEND_SCOPE]
-  );
+  protectedResourceMap.set(`${API_BASE}/pedidos/*`, [BACKEND_SCOPE]);
 
   return {
     interactionType: InteractionType.Redirect,
@@ -110,10 +110,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),
 
-    /*
-     * Necesario para que HttpClient ejecute MsalInterceptor registrado
-     * a través de HTTP_INTERCEPTORS.
-     */
     provideHttpClient(withInterceptorsFromDi()),
 
     importProvidersFrom(MsalModule),
