@@ -27,6 +27,7 @@ import {
   MSAL_GUARD_CONFIG,
   MSAL_INSTANCE,
   MSAL_INTERCEPTOR_CONFIG,
+  ProtectedResourceScopes,
 } from '@azure/msal-angular';
 
 import {
@@ -88,15 +89,45 @@ function msalGuardConfigFactory(): MsalGuardConfiguration {
 }
 
 function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
-  const protectedResourceMap = new Map<string, Array<string> | null>();
+  const protectedResourceMap =
+    new Map<string, Array<string | ProtectedResourceScopes> | null>();
 
-  // Conserva el comportamiento actual de productos: sin token.
-  protectedResourceMap.set(environment.apiProductos, null);
-  protectedResourceMap.set(`${environment.apiProductos}/*`, null);
+  // Catálogo público; crear y eliminar productos requiere token.
+  const productosScopes: ProtectedResourceScopes[] = [
+    {
+      httpMethod: 'GET',
+      scopes: null,
+    },
+    {
+      httpMethod: 'POST',
+      scopes: [BACKEND_SCOPE],
+    },
+    {
+      httpMethod: 'DELETE',
+      scopes: [BACKEND_SCOPE],
+    },
+  ];
+
+  protectedResourceMap.set(
+    environment.apiProductos,
+    productosScopes,
+  );
+
+  protectedResourceMap.set(
+    `${environment.apiProductos}/*`,
+    productosScopes,
+  );
 
   // Pedidos: solicitar y adjuntar el token del backend.
-  protectedResourceMap.set(environment.apiPedidos, [BACKEND_SCOPE]);
-  protectedResourceMap.set(`${environment.apiPedidos}/*`, [BACKEND_SCOPE]);
+  protectedResourceMap.set(
+    environment.apiPedidos,
+    [BACKEND_SCOPE],
+  );
+
+  protectedResourceMap.set(
+    `${environment.apiPedidos}/*`,
+    [BACKEND_SCOPE],
+  );
 
   return {
     interactionType: InteractionType.Redirect,
