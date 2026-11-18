@@ -20,8 +20,14 @@ export class Pedidos {
   readonly error = signal<string | null>(null);
   readonly abierto = signal<number | null>(null);
 
-  readonly estados = ['CREADO', 'PAGADO', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
-
+  readonly estados = [
+    'CREADO',
+    'ACEPTADO',
+    'EN_PREPARACIÓN',
+    'DESPACHADO',
+    'ENTREGADO',
+    'CANCELADO',
+  ];
   constructor() {
     this.cargar();
   }
@@ -55,12 +61,26 @@ export class Pedidos {
 
   estadoClase(estado?: string): string {
     switch (estado) {
-      case 'CREADO':    return 'bg-[#282a32] text-[#cfc2d6]';
-      case 'PAGADO':    return 'bg-[#00686f]/40 text-[#7df4ff]';
-      case 'ENVIADO':   return 'bg-[#6900b3]/40 text-[#ddb7ff]';
-      case 'ENTREGADO': return 'bg-[#005228]/50 text-[#60ff99]';
-      case 'CANCELADO': return 'bg-[#93000a]/40 text-[#ffb4ab]';
-      default:          return 'bg-[#282a32] text-[#cfc2d6]';
+      case 'CREADO':
+        return 'bg-[#282a32] text-[#cfc2d6]';
+
+      case 'ACEPTADO':
+        return 'bg-[#00686f]/40 text-[#7df4ff]';
+
+      case 'EN_PREPARACIÓN':
+        return 'bg-[#775a00]/40 text-[#ffe082]';
+
+      case 'DESPACHADO':
+        return 'bg-[#6900b3]/40 text-[#ddb7ff]';
+
+      case 'ENTREGADO':
+        return 'bg-[#005228]/50 text-[#60ff99]';
+
+      case 'CANCELADO':
+        return 'bg-[#93000a]/40 text-[#ffb4ab]';
+
+      default:
+        return 'bg-[#282a32] text-[#cfc2d6]';
     }
   }
 }
