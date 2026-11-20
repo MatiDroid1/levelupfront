@@ -128,6 +128,16 @@ function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
     `${environment.apiPedidos}/*`,
     [BACKEND_SCOPE],
   );
+    // Notificaciones: consulta y lectura requieren token.
+  protectedResourceMap.set(
+    environment.apiNotificaciones,
+    [BACKEND_SCOPE],
+  );
+
+  protectedResourceMap.set(
+    `${environment.apiNotificaciones}/*`,
+    [BACKEND_SCOPE],
+  );
 
   return {
     interactionType: InteractionType.Redirect,

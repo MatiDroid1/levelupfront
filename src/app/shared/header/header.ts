@@ -7,6 +7,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
@@ -20,6 +21,7 @@ import {
 } from '@azure/msal-browser';
 
 import { CarritoService } from '../../services/carrito.service';
+import { Notificaciones } from '../notificaciones/notificaciones';
 
 const BACKEND_SCOPE =
   'api://260c8d4a-9eae-4da8-9e2b-76c587b25b85/access_as_user';
@@ -30,6 +32,7 @@ const BACKEND_SCOPE =
     CommonModule,
     RouterLink,
     RouterLinkActive,
+    Notificaciones,
   ],
   templateUrl: './header.html',
 })
@@ -128,6 +131,7 @@ export class Header implements OnInit, OnDestroy {
           }
 
           this.cuentaComprobada = account.homeAccountId;
+
           this.esAdmin = this.tokenTieneRolAdmin(
             result.accessToken,
           );

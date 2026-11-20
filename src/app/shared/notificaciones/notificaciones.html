@@ -1,0 +1,159 @@
+@if (autenticado()) {
+  <div class="relative">
+    <button
+      type="button"
+      class="campana"
+      (click)="toggle()"
+      [attr.aria-expanded]="abierto()"
+      aria-controls="panel-notificaciones"
+      [attr.aria-label]="'Notificaciones: ' + servicio.noLeidas() + ' sin leer'"
+      title="Notificaciones"
+    >
+      <span
+        class="material-symbols-outlined text-[21px]"
+        aria-hidden="true"
+      >
+        notifications
+      </span>
+
+      @if (servicio.noLeidas() > 0) {
+        <span class="contador">
+          {{ servicio.noLeidas() > 99 ? '99+' : servicio.noLeidas() }}
+        </span>
+      }
+    </button>
+
+    @if (abierto()) {
+      <section
+        id="panel-notificaciones"
+        class="panel"
+        aria-labelledby="titulo-notificaciones"
+      >
+        <div class="panel-cabecera">
+          <div>
+            <h2 id="titulo-notificaciones">
+              Notificaciones
+            </h2>
+
+            <p aria-live="polite">
+              {{ servicio.noLeidas() }} sin leer en las últimas
+              {{ servicio.notificaciones().length }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="cerrar"
+            (click)="cerrar()"
+            aria-label="Cerrar notificaciones"
+          >
+            <span
+              class="material-symbols-outlined"
+              aria-hidden="true"
+            >
+              close
+            </span>
+          </button>
+        </div>
+
+        @if (servicio.error()) {
+          <p class="aviso-error" role="status">
+            {{ servicio.error() }}
+          </p>
+        }
+
+        <div class="lista">
+          @if (servicio.cargando()) {
+            <p class="vacio" role="status">
+              Cargando notificaciones…
+            </p>
+          } @else {
+            @for (n of servicio.notificaciones(); track n.id) {
+              <article
+                class="notificacion"
+                [class.sin-leer]="!n.leida"
+              >
+                <div class="icono">
+                  <span
+                    class="material-symbols-outlined"
+                    aria-hidden="true"
+                  >
+                    {{
+                      n.estado === 'ENTREGADO'
+                        ? 'task_alt'
+                        : n.estado === 'CANCELADO'
+                          ? 'cancel'
+                          : n.estado === 'DESPACHADO'
+                            ? 'local_shipping'
+                            : 'inventory_2'
+                    }}
+                  </span>
+                </div>
+
+                <div class="contenido">
+                  <p class="mensaje">
+                    {{ n.mensaje }}
+                  </p>
+
+                  <time class="fecha" [attr.datetime]="n.fecha">
+                    {{ n.fecha | date:'dd/MM/yyyy HH:mm' }}
+                  </time>
+
+                  <div class="acciones">
+                    <a
+                      routerLink="/pedidos"
+                      (click)="cerrar()"
+                    >
+                      Ver mis pedidos
+                    </a>
+
+                    @if (!n.leida) {
+                      <button
+                        type="button"
+                        (click)="marcarLeida(n.id)"
+                        [disabled]="procesando() !== null"
+                      >
+                        {{
+                          procesando() === n.id
+                            ? 'Guardando…'
+                            : 'Marcar como leída'
+                        }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                @if (!n.leida) {
+                  <span
+                    class="punto"
+                    aria-label="No leída"
+                  ></span>
+                }
+              </article>
+            } @empty {
+              @if (!servicio.error()) {
+                <div class="vacio">
+                  <span
+                    class="material-symbols-outlined text-[36px]"
+                    aria-hidden="true"
+                  >
+                    notifications_none
+                  </span>
+
+                  <p>Aún no tienes notificaciones.</p>
+                  <small>
+                    Aquí aparecerán las novedades de tus pedidos.
+                  </small>
+                </div>
+              }
+            }
+          }
+        </div>
+
+        <div class="panel-pie">
+          Actualización automática cada 10 segundos
+        </div>
+      </section>
+    }
+  </div>
+}
