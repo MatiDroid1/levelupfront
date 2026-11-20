@@ -5,5 +5,5 @@ export const environment = {
   apiPedidos:
     'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/pedidos',
   apiNotificaciones:
-    '',
+    'https://2fdh45ejme.execute-api.us-east-1.amazonaws.com/notificaciones',
 };
